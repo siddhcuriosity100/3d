@@ -1000,8 +1000,7 @@ function generateData() {
     for (let i = 1; i <= 50; i++) {
         const tankLevel = Math.floor(Math.random() * 100);
         const soilMoisture = Math.floor(Math.random() * 100);
-        const baseUsage = 150 + Math.floor(Math.random() * 350);
-        const dailyUsage = soilMoisture < 30 ? baseUsage + 200 : baseUsage;
+        const dailyUsage = 1200 + Math.floor(Math.random() * 801);
 
         let status = "ok";
         if (tankLevel < 20 || soilMoisture < 15) status = "critical";
@@ -1115,8 +1114,8 @@ function renderBarChart() {
     chart.innerHTML = plots.map(p => {
         const h = (p.dailyUsage / maxUsage) * 100;
         let color = "var(--blue)";
-        if (p.dailyUsage > 450) color = "var(--red)";
-        else if (p.dailyUsage > 350) color = "var(--orange)";
+        if (p.dailyUsage > 1800) color = "var(--red)";
+        else if (p.dailyUsage > 1500) color = "var(--orange)";
         return `<div class="bar-col" style="height:${h}%; background:${color};"
                      title="Plot #${p.id}: ${p.dailyUsage}L/day">
                     <span class="bar-label">${p.id}</span>
@@ -1167,7 +1166,7 @@ function renderAlerts() {
         else if (p.soilMoisture < 30)
             alerts.push({ type: "warning", icon: "&#127793;", title: `Plot #${p.id} (${p.name}) — Low Soil Moisture`, desc: `Soil moisture at ${p.soilMoisture}%. Irrigation recommended.`, time: "10 min ago" });
 
-        if (p.dailyUsage > 480)
+        if (p.dailyUsage > 1900)
             alerts.push({ type: "info", icon: "&#128167;", title: `Plot #${p.id} (${p.name}) — High Water Usage`, desc: `Using ${p.dailyUsage}L/day. Check for leaks or over-irrigation.`, time: "15 min ago" });
     });
 
