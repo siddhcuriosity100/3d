@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENDO | Villa Landscape Monitoring</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ════════════════════════════════════════
+           CSS VARIABLES — DARK & LIGHT THEMES
+           ════════════════════════════════════════ */
+        :root {
+            --accent: #22c55e;
+            --accent-hover: #16a34a;
+            --accent-glow: rgba(34,197,94,.15);
+            --blue: #3b82f6;
+            --orange: #f59e0b;
+            --red: #ef4444;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,.15);
+            --transition: .25s cubic-bezier(.4,0,.2,1);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0b1120;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #263244;
+            --bg-header: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+            --bg-input: #1f2937;
+            --border: #374151;
+            --border-hover: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --bar-track: #1f2937;
+            --table-row-hover: rgba(34,197,94,.04);
+            --logo-filter: none;
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --bg-header: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            --bg-input: #f1f5f9;
+            --border: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --bar-track: #e2e8f0;
+            --table-row-hover: rgba(34,197,94,.06);
+            --logo-filter: brightness(0) saturate(100%);
+        }
+
+        /* ════════════════════════════════
+           BASE RESET & TYPOGRAPHY
+           ════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background var(--transition), color var(--transition);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ════════════════════════════════
+           HEADER
+           ════════════════════════════════ */
+        .header {
+            background: var(--bg-header);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            transition: background var(--transition), border var(--transition);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .header-logo {
+            height: 40px;
+            object-fit: contain;
+            filter: var(--logo-filter);
+            transition: filter var(--transition);
+        }
+        [data-theme="light"] .header-logo { filter: none; }
+        .header-divider {
+            width: 1px;
+            height: 32px;
+            background: var(--border);
+        }
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: -.02em;
+            color: var(--text-primary);
+        }
+        .header-subtitle {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .header-stats {
+            display: flex;
+            gap: 28px;
+        }
+        .header-stat {
+            text-align: center;
+        }
+        .header-stat .value {
+            font-size: 20px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.2;
+        }
+        .header-stat .label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        /* ── Live Indicator ── */
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .live-dot {
+            width: 7px; height: 7px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
+            50% { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+        }
+
+        /* ════════════════════════════════
+           THEME TOGGLE SWITCH
+           ════════════════════════════════ */
+        .theme-toggle {
+            position: relative;
+            width: 56px;
+            height: 28px;
+            cursor: pointer;
+        }
+        .theme-toggle input { display: none; }
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            transition: background var(--transition), border var(--transition);
+        }
+        .toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent);
+            transition: transform var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .theme-toggle input:checked + .toggle-track .toggle-thumb {
+            transform: translateX(28px);
+        }
+        .toggle-icon {
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        /* ════════════════════════════════
+           NAVIGATION TABS
+           ════════════════════════════════ */
+        .nav-bar {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            display: flex;
+            gap: 0;
+            transition: background var(--transition), border var(--transition);
+            overflow-x: auto;
+        }
+        .nav-tab {
+            position: relative;
+            padding: 14px 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color var(--transition);
+            white-space: nowrap;
+            user-select: none;
+        }
+        .nav-tab:hover { color: var(--text-primary); }
+        .nav-tab.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 16px;
+            right: 16px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 2px 2px 0 0;
+        }
+        .nav-tab .tab-icon {
+            margin-right: 6px;
+            font-size: 14px;
+        }
+
+        /* ════════════════════════════════
+           MAIN CONTENT
+           ════════════════════════════════ */
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn .3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+        /* ════════════════════════════════
+           SUMMARY METRIC CARDS
+           ════════════════════════════════ */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            transition: background var(--transition), border var(--transition), box-shadow var(--transition);
+        }
+        .metric-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow);
+        }
+        .metric-card .mc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .metric-card .mc-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .metric-card .mc-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .mc-icon.icon-blue { background: rgba(59,130,246,.12); }
+        .mc-icon.icon-green { background: rgba(34,197,94,.12); }
+        .mc-icon.icon-orange { background: rgba(245,158,11,.12); }
+        .mc-icon.icon-red { background: rgba(239,68,68,.12); }
+        .metric-card .mc-value {
+            font-size: 30px;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+            letter-spacing: -.03em;
+        }
+        .metric-card .mc-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ── Color utilities ── */
+        .c-green { color: var(--accent); }
+        .c-blue { color: var(--blue); }
+        .c-orange { color: var(--orange); }
+        .c-red { color: var(--red); }
+
+        /* ════════════════════════════════
+           TOOLBAR / CONTROLS
+           ════════════════════════════════ */
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .input-field {
+            padding: 9px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: border var(--transition), background var(--transition);
+        }
+        .input-field:focus { border-color: var(--accent); }
+        .input-field::placeholder { color: var(--text-muted); }
+        input.input-field { width: 260px; }
+        select.input-field {
+            cursor: pointer;
+            appearance: none;
+            padding-right: 32px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background var(--transition), transform .1s;
+        }
+        .btn:active { transform: scale(.97); }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .btn-ghost:hover { background: var(--bg-card); }
+
+        /* ════════════════════════════════
+           PLOT CARDS GRID
+           ════════════════════════════════ */
+        .plot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 14px;
+        }
+        .plot-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: all var(--transition);
+        }
+        .plot-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent), var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+        .pc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .pc-title {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .badge-ok { background: rgba(34,197,94,.12); color: var(--accent); }
+        .badge-warning { background: rgba(245,158,11,.12); color: var(--orange); }
+        .badge-critical { background: rgba(239,68,68,.12); color: var(--red); }
+
+        .pc-body { padding: 16px 18px; }
+        .pc-metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .pc-metric-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .pc-metric-value {
+            font-size: 13px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--bar-track);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width .6s ease;
+        }
+        .pf-green { background: var(--accent); }
+        .pf-blue { background: var(--blue); }
+        .pf-orange { background: var(--orange); }
+        .pf-red { background: var(--red); }
+
+        .pc-footer {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+            margin-top: 2px;
+        }
+        .pc-footer-item {
+            text-align: center;
+        }
+        .pc-footer-item .pf-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .pc-footer-item .pf-val {
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        /* ════════════════════════════════
+           PLOT LAYOUT MAP
+           ════════════════════════════════ */
+        .layout-header {
+            margin-bottom: 20px;
+        }
+        .layout-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .layout-header p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .legend {
+            display: flex;
+            gap: 18px;
+            margin: 14px 0 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .legend-dot {
+            width: 14px; height: 14px;
+            border-radius: 4px;
+        }
+        .layout-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            max-width: 920px;
+        }
+        .layout-cell {
+            aspect-ratio: 1;
+            border-radius: var(--radius-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform var(--transition), box-shadow var(--transition);
+            border: 2px solid transparent;
+        }
+        .layout-cell:hover {
+            transform: scale(1.12);
+            z-index: 5;
+            box-shadow: var(--shadow-lg);
+        }
+        .layout-cell .cell-num { font-size: 14px; font-weight: 800; }
+        .layout-cell .cell-pct { font-size: 9px; font-weight: 600; opacity: .8; margin-top: 1px; }
+
+        /* ── Tooltip ── */
+        .tooltip {
+            display: none;
+            position: fixed;
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            z-index: 200;
+            min-width: 230px;
+            box-shadow: var(--shadow-lg);
+            transition: background var(--transition);
+        }
+        .tooltip.show { display: block; }
+        .tooltip h4 {
+            color: var(--accent);
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .tooltip p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .tooltip .tt-val { font-weight: 700; color: var(--text-primary); }
+
+        /* ════════════════════════════════
+           CONSUMPTION TABLE
+           ════════════════════════════════ */
+        .chart-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: background var(--transition), border var(--transition);
+        }
+        .chart-panel h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 18px;
+        }
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 200px;
+        }
+        .bar-col {
+            flex: 1;
+            min-width: 10px;
+            border-radius: 3px 3px 0 0;
+            transition: opacity .2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .bar-col:hover { opacity: .75; }
+        .bar-label {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 8px;
+            font-weight: 600;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .table-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: background var(--transition), border var(--transition);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        thead {
+            background: var(--bg-surface);
+        }
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            cursor: pointer;
+            user-select: none;
+            transition: color var(--transition);
+            border-bottom: 1px solid var(--border);
+        }
+        th:hover { color: var(--accent); }
+        td {
+            padding: 11px 16px;
+            border-bottom: 1px solid var(--border);
+            font-variant-numeric: tabular-nums;
+            transition: background var(--transition);
+        }
+        tr:hover td { background: var(--table-row-hover); }
+
+        /* ════════════════════════════════
+           ALERTS
+           ════════════════════════════════ */
+        .alerts-header {
+            margin-bottom: 20px;
+        }
+        .alerts-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .alerts-header p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .alert-list { display: flex; flex-direction: column; gap: 10px; }
+        .alert-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            border-left: 4px solid;
+            transition: background var(--transition), border var(--transition);
+        }
+        .alert-card:hover { border-color: var(--border-hover); }
+        .alert-card.a-critical { border-left-color: var(--red); }
+        .alert-card.a-warning { border-left-color: var(--orange); }
+        .alert-card.a-info { border-left-color: var(--blue); }
+        .alert-icon-wrap {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .a-critical .alert-icon-wrap { background: rgba(239,68,68,.1); }
+        .a-warning .alert-icon-wrap { background: rgba(245,158,11,.1); }
+        .a-info .alert-icon-wrap { background: rgba(59,130,246,.1); }
+        .alert-body { flex: 1; }
+        .alert-body .a-title { font-size: 14px; font-weight: 600; }
+        .alert-body .a-desc { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+        .alert-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .no-alerts {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--accent);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* ════════════════════════════════
+           FOOTER
+           ════════════════════════════════ */
+        .footer {
+            text-align: center;
+            padding: 24px 32px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 32px;
+        }
+        .footer a { color: var(--accent); text-decoration: none; }
+
+        /* ════════════════════════════════
+           RESPONSIVE
+           ════════════════════════════════ */
+        @media (max-width: 900px) {
+            .header { padding: 0 16px; height: auto; flex-direction: column; gap: 12px; padding: 14px 16px; }
+            .header-stats { gap: 16px; }
+            .nav-bar { padding: 0 16px; }
+            .container { padding: 16px; }
+            .plot-grid { grid-template-columns: 1fr; }
+            .layout-grid { grid-template-columns: repeat(5, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .metrics-grid { grid-template-columns: 1fr 1fr; }
+            .header-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<div class="header">
+    <div class="header-left">
+        <img src="endo-logo.jpeg" alt="ENDO" class="header-logo">
+        <div class="header-divider"></div>
+        <div>
+            <div class="header-title">Villa Landscape Monitoring</div>
+            <div class="header-subtitle">50-Plot Irrigation & Water Intelligence</div>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="live-badge"><span class="live-dot"></span> Live</div>
+        <div class="header-stats">
+            <div class="header-stat">
+                <div class="value c-green" id="hdr-active">50</div>
+                <div class="label">Plots</div>
+            </div>
+            <div class="header-stat">
+                <div class="value c-blue" id="hdr-water">--</div>
+                <div class="label">L / Day</div>
+            </div>
+            <div class="header-stat">
+                <div class="value c-orange" id="hdr-alerts">--</div>
+                <div class="label">Alerts</div>
+            </div>
+            <div class="header-stat">
+                <div class="value" id="hdr-time">--:--</div>
+                <div class="label">Updated</div>
+            </div>
+        </div>
+
+        <!-- THEME TOGGLE -->
+        <label class="theme-toggle" title="Toggle Light / Dark Mode">
+            <input type="checkbox" id="themeSwitch">
+            <div class="toggle-track">
+                <div class="toggle-thumb">
+                    <span class="toggle-icon" id="themeIcon">&#9790;</span>
+                </div>
+            </div>
+        </label>
+    </div>
+</div>
+
+<!-- ══════════════ NAVIGATION ══════════════ -->
+<div class="nav-bar">
+    <div class="nav-tab active" data-tab="dashboard"><span class="tab-icon">&#9632;</span>Dashboard</div>
+    <div class="nav-tab" data-tab="layout"><span class="tab-icon">&#9635;</span>Plot Layout</div>
+    <div class="nav-tab" data-tab="consumption"><span class="tab-icon">&#9650;</span>Water Consumption</div>
+    <div class="nav-tab" data-tab="alerts"><span class="tab-icon">&#9888;</span>Alerts</div>
+</div>
+
+<!-- ══════════════ TOOLTIP ══════════════ -->
+<div class="tooltip" id="tooltip">
+    <h4 id="tt-title"></h4>
+    <p>Water Tank <span class="tt-val" id="tt-tank"></span></p>
+    <p>Soil Moisture <span class="tt-val" id="tt-soil"></span></p>
+    <p>Daily Usage <span class="tt-val" id="tt-usage"></span></p>
+    <p>Status <span class="tt-val" id="tt-status"></span></p>
+</div>
+
+<div class="container">
+
+    <!-- ════════ TAB 1: DASHBOARD ════════ -->
+    <div class="section active" id="sec-dashboard">
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="mc-header">
+                    <span class="mc-label">Avg Tank Level</span>
+                    <div class="mc-icon icon-blue">&#128167;</div>
+                </div>
+                <div class="mc-value c-blue" id="avg-tank">--%</div>
+                <div class="mc-sub">Across all 50 plots</div>
+            </div>
+            <div class="metric-card">
+                <div class="mc-header">
+                    <span class="mc-label">Avg Soil Moisture</span>
+                    <div class="mc-icon icon-green">&#127793;</div>
+                </div>
+                <div class="mc-value c-green" id="avg-soil">--%</div>
+                <div class="mc-sub">Target range: 40 – 70%</div>
+            </div>
+            <div class="metric-card">
+                <div class="mc-header">
+                    <span class="mc-label">Daily Consumption</span>
+                    <div class="mc-icon icon-blue">&#9783;</div>
+                </div>
+                <div class="mc-value c-blue" id="total-consumption">-- L</div>
+                <div class="mc-sub">All plots combined</div>
+            </div>
+            <div class="metric-card">
+                <div class="mc-header">
+                    <span class="mc-label">Needs Attention</span>
+                    <div class="mc-icon icon-orange">&#9888;</div>
+                </div>
+                <div class="mc-value c-orange" id="plots-attention">--</div>
+                <div class="mc-sub">Low tank or dry soil</div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <input type="text" class="input-field" id="search" placeholder="Search villa or plot number...">
+            <select class="input-field" id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="ok">OK</option>
+                <option value="warning">Warning</option>
+                <option value="critical">Critical</option>
+            </select>
+            <select class="input-field" id="sortBy">
+                <option value="id">Sort by Plot #</option>
+                <option value="tank-asc">Tank Level (Low &#8594; High)</option>
+                <option value="tank-desc">Tank Level (High &#8594; Low)</option>
+                <option value="soil-asc">Soil Moisture (Low &#8594; High)</option>
+                <option value="water-desc">Water Usage (High &#8594; Low)</option>
+            </select>
+            <button class="btn btn-primary" onclick="refreshData()">&#8635; Refresh</button>
+        </div>
+
+        <div class="plot-grid" id="plotGrid"></div>
+    </div>
+
+    <!-- ════════ TAB 2: PLOT LAYOUT ════════ -->
+    <div class="section" id="sec-layout">
+        <div class="layout-header">
+            <h2>Plot Layout Map</h2>
+            <p>10 &times; 5 grid overview. Hover for details. Colour indicates water tank level.</p>
+        </div>
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent);"></div>Tank &gt; 60%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--orange);"></div>Tank 30–60%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--red);"></div>Tank &lt; 30%</div>
+        </div>
+        <div class="layout-grid" id="layoutGrid"></div>
+    </div>
+
+    <!-- ════════ TAB 3: WATER CONSUMPTION ════════ -->
+    <div class="section" id="sec-consumption">
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="mc-header">
+                    <span class="mc-label">Highest Consumer</span>
+                    <div class="mc-icon icon-red">&#9650;</div>
+                </div>
+                <div class="mc-value c-red" id="max-consumer">--</div>
+                <div class="mc-sub" id="max-consumer-val"></div>
+            </div>
+            <div class="metric-card">
+                <div class="mc-header">
+                    <span class="mc-label">Lowest Consumer</span>
+                    <div class="mc-icon icon-green">&#9660;</div>
+                </div>
+                <div class="mc-value c-green" id="min-consumer">--</div>
+                <div class="mc-sub" id="min-consumer-val"></div>
+            </div>
+            <div class="metric-card">
+                <div class="mc-header">
+                    <span class="mc-label">Average per Plot</span>
+                    <div class="mc-icon icon-blue">&#9776;</div>
+                </div>
+                <div class="mc-value c-blue" id="avg-consumption">-- L</div>
+                <div class="mc-sub">Per day</div>
+            </div>
+            <div class="metric-card">
+                <div class="mc-header">
+                    <span class="mc-label">Monthly Estimate</span>
+                    <div class="mc-icon icon-orange">&#128197;</div>
+                </div>
+                <div class="mc-value c-orange" id="monthly-est">-- L</div>
+                <div class="mc-sub">Projected for all plots</div>
+            </div>
+        </div>
+
+        <div class="chart-panel">
+            <h3>Daily Water Consumption per Plot (Litres)</h3>
+            <div class="bar-chart" id="barChart"></div>
+        </div>
+
+        <div class="table-panel">
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">Plot #</th>
+                        <th onclick="sortTable(1)">Villa Name</th>
+                        <th onclick="sortTable(2)">Water Tank %</th>
+                        <th onclick="sortTable(3)">Soil Moisture %</th>
+                        <th onclick="sortTable(4)">Daily (L)</th>
+                        <th onclick="sortTable(5)">Weekly (L)</th>
+                        <th onclick="sortTable(6)">Monthly Est. (L)</th>
+                        <th onclick="sortTable(7)">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="consumptionTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ════════ TAB 4: ALERTS ════════ -->
+    <div class="section" id="sec-alerts">
+        <div class="alerts-header">
+            <h2>Active Alerts</h2>
+            <p>Real-time notifications for tank levels, soil moisture and usage anomalies</p>
+        </div>
+        <div class="alert-list" id="alertList"></div>
+    </div>
+</div>
+
+<div class="footer">
+    Powered by <a href="#">ENDO Automation</a> &mdash; Smart Landscape Intelligence Platform &copy; 2026
+</div>
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+     ══════════════════════════════════════════════ -->
+<script>
+/* ═══════════════
+   THEME TOGGLE
+   ═══════════════ */
+const themeSwitch = document.getElementById("themeSwitch");
+const themeIcon = document.getElementById("themeIcon");
+const root = document.documentElement;
+
+function setTheme(isDark) {
+    root.setAttribute("data-theme", isDark ? "dark" : "light");
+    themeIcon.innerHTML = isDark ? "&#9790;" : "&#9728;";
+    themeSwitch.checked = !isDark;
+    localStorage.setItem("endo-theme", isDark ? "dark" : "light");
+}
+
+themeSwitch.addEventListener("change", () => setTheme(!themeSwitch.checked));
+
+// Load saved preference
+const saved = localStorage.getItem("endo-theme");
+if (saved) setTheme(saved === "dark");
+
+/* ═══════════════════════════════════════
+   DATA GENERATION (simulated sensor data)
+   ═══════════════════════════════════════ */
+const villaNames = [
+    "Sunrise","Jasmine","Palm","Cedar","Olive","Lotus","Maple","Orchid","Willow","Ivy",
+    "Rose","Daisy","Fern","Holly","Iris","Sage","Tulip","Amber","Coral","Pearl",
+    "Hazel","Violet","Ruby","Sky","Flora","Aurora","Breeze","Haven","Oasis","Serene",
+    "Grace","Eden","Bloom","Cascade","Crystal","Dawn","Echo","Harbor","Luna","Meadow",
+    "Noble","Pebble","Quartz","Rain","Terra","Unity","Vista","Zenith","Crest","Summit"
+];
+
+let plots = [];
+
+function generateData() {
+    plots = [];
+    for (let i = 1; i <= 50; i++) {
+        const tankLevel = Math.floor(Math.random() * 100);
+        const soilMoisture = Math.floor(Math.random() * 100);
+        const baseUsage = 150 + Math.floor(Math.random() * 350);
+        const dailyUsage = soilMoisture < 30 ? baseUsage + 200 : baseUsage;
+
+        let status = "ok";
+        if (tankLevel < 20 || soilMoisture < 15) status = "critical";
+        else if (tankLevel < 40 || soilMoisture < 30) status = "warning";
+
+        plots.push({
+            id: i,
+            name: `Villa ${villaNames[i - 1]}`,
+            tankLevel,
+            soilMoisture,
+            dailyUsage,
+            weeklyUsage: dailyUsage * 7,
+            monthlyEst: dailyUsage * 30,
+            status,
+            tankCapacity: 5000,
+            lastIrrigation: `${Math.floor(Math.random() * 12) + 1}h ago`,
+            zone: `Zone ${String.fromCharCode(65 + Math.floor((i - 1) / 10))}`
+        });
+    }
+}
+
+/* ═══════════════════
+   RENDER FUNCTIONS
+   ═══════════════════ */
+function renderHeader() {
+    const totalWater = plots.reduce((s, p) => s + p.dailyUsage, 0);
+    const alertCount = plots.filter(p => p.status !== "ok").length;
+    const now = new Date();
+    document.getElementById("hdr-water").textContent = totalWater.toLocaleString();
+    document.getElementById("hdr-alerts").textContent = alertCount;
+    document.getElementById("hdr-time").textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function renderSummary() {
+    const avgTank = Math.round(plots.reduce((s, p) => s + p.tankLevel, 0) / plots.length);
+    const avgSoil = Math.round(plots.reduce((s, p) => s + p.soilMoisture, 0) / plots.length);
+    const totalCons = plots.reduce((s, p) => s + p.dailyUsage, 0);
+    const attention = plots.filter(p => p.status !== "ok").length;
+
+    document.getElementById("avg-tank").textContent = avgTank + "%";
+    document.getElementById("avg-soil").textContent = avgSoil + "%";
+    document.getElementById("total-consumption").textContent = totalCons.toLocaleString() + " L";
+    document.getElementById("plots-attention").textContent = attention;
+}
+
+function getProgressClass(value) {
+    if (value >= 60) return "pf-green";
+    if (value >= 30) return "pf-orange";
+    return "pf-red";
+}
+
+function renderPlotGrid(filteredPlots) {
+    const grid = document.getElementById("plotGrid");
+    grid.innerHTML = filteredPlots.map(p => `
+        <div class="plot-card">
+            <div class="pc-header">
+                <span class="pc-title">Plot #${p.id} &mdash; ${p.name}</span>
+                <span class="badge badge-${p.status}">${p.status}</span>
+            </div>
+            <div class="pc-body">
+                <div class="pc-metric-row">
+                    <span class="pc-metric-label">Water Tank Level</span>
+                    <span class="pc-metric-value ${p.tankLevel < 30 ? 'c-red' : p.tankLevel < 60 ? 'c-orange' : 'c-blue'}">${p.tankLevel}%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill ${getProgressClass(p.tankLevel)}" style="width:${p.tankLevel}%"></div></div>
+
+                <div class="pc-metric-row">
+                    <span class="pc-metric-label">Soil Moisture</span>
+                    <span class="pc-metric-value ${p.soilMoisture < 25 ? 'c-red' : p.soilMoisture < 45 ? 'c-orange' : 'c-green'}">${p.soilMoisture}%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill ${getProgressClass(p.soilMoisture)}" style="width:${p.soilMoisture}%"></div></div>
+
+                <div class="pc-footer">
+                    <div class="pc-footer-item">
+                        <div class="pf-label">Daily Usage</div>
+                        <div class="pf-val c-blue">${p.dailyUsage} L</div>
+                    </div>
+                    <div class="pc-footer-item">
+                        <div class="pf-label">Last Irrigation</div>
+                        <div class="pf-val">${p.lastIrrigation}</div>
+                    </div>
+                    <div class="pc-footer-item">
+                        <div class="pf-label">${p.zone}</div>
+                        <div class="pf-val" style="font-size:12px;color:var(--text-muted)">Cap: ${p.tankCapacity}L</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join("");
+}
+
+function renderLayoutGrid() {
+    const grid = document.getElementById("layoutGrid");
+    grid.innerHTML = plots.map(p => {
+        let bg, border;
+        if (p.tankLevel >= 60) { bg = "rgba(34,197,94,.15)"; border = "var(--accent)"; }
+        else if (p.tankLevel >= 30) { bg = "rgba(245,158,11,.15)"; border = "var(--orange)"; }
+        else { bg = "rgba(239,68,68,.15)"; border = "var(--red)"; }
+        return `
+            <div class="layout-cell" style="background:${bg}; border-color:${border};"
+                 onmouseenter="showTooltip(event, ${p.id})" onmouseleave="hideTooltip()">
+                <div class="cell-num">${p.id}</div>
+                <div class="cell-pct">${p.tankLevel}%</div>
+            </div>`;
+    }).join("");
+}
+
+function renderBarChart() {
+    const chart = document.getElementById("barChart");
+    const maxUsage = Math.max(...plots.map(p => p.dailyUsage));
+    chart.innerHTML = plots.map(p => {
+        const h = (p.dailyUsage / maxUsage) * 100;
+        let color = "var(--blue)";
+        if (p.dailyUsage > 450) color = "var(--red)";
+        else if (p.dailyUsage > 350) color = "var(--orange)";
+        return `<div class="bar-col" style="height:${h}%; background:${color};"
+                     title="Plot #${p.id}: ${p.dailyUsage}L/day">
+                    <span class="bar-label">${p.id}</span>
+                </div>`;
+    }).join("");
+}
+
+function renderConsumptionTable() {
+    const tbody = document.getElementById("consumptionTable");
+    tbody.innerHTML = plots.map(p => `
+        <tr>
+            <td>#${p.id}</td>
+            <td>${p.name}</td>
+            <td>${p.tankLevel}%</td>
+            <td>${p.soilMoisture}%</td>
+            <td>${p.dailyUsage}</td>
+            <td>${p.weeklyUsage.toLocaleString()}</td>
+            <td>${p.monthlyEst.toLocaleString()}</td>
+            <td><span class="badge badge-${p.status}">${p.status}</span></td>
+        </tr>
+    `).join("");
+
+    const max = plots.reduce((a, b) => a.dailyUsage > b.dailyUsage ? a : b);
+    const min = plots.reduce((a, b) => a.dailyUsage < b.dailyUsage ? a : b);
+    const avg = Math.round(plots.reduce((s, p) => s + p.dailyUsage, 0) / plots.length);
+    const total = plots.reduce((s, p) => s + p.dailyUsage, 0);
+
+    document.getElementById("max-consumer").textContent = `Plot #${max.id}`;
+    document.getElementById("max-consumer-val").textContent = `${max.dailyUsage} L/day`;
+    document.getElementById("min-consumer").textContent = `Plot #${min.id}`;
+    document.getElementById("min-consumer-val").textContent = `${min.dailyUsage} L/day`;
+    document.getElementById("avg-consumption").textContent = avg + " L";
+    document.getElementById("monthly-est").textContent = (total * 30).toLocaleString() + " L";
+}
+
+function renderAlerts() {
+    const list = document.getElementById("alertList");
+    const alerts = [];
+
+    plots.forEach(p => {
+        if (p.tankLevel < 20)
+            alerts.push({ type: "critical", icon: "&#9888;", title: `Plot #${p.id} (${p.name}) — Tank Critically Low`, desc: `Water tank at ${p.tankLevel}%. Immediate refill required.`, time: "Just now" });
+        else if (p.tankLevel < 40)
+            alerts.push({ type: "warning", icon: "&#9888;", title: `Plot #${p.id} (${p.name}) — Low Tank Level`, desc: `Water tank at ${p.tankLevel}%. Schedule refill soon.`, time: "5 min ago" });
+
+        if (p.soilMoisture < 15)
+            alerts.push({ type: "critical", icon: "&#127793;", title: `Plot #${p.id} (${p.name}) — Soil Critically Dry`, desc: `Soil moisture at ${p.soilMoisture}%. Immediate irrigation needed.`, time: "Just now" });
+        else if (p.soilMoisture < 30)
+            alerts.push({ type: "warning", icon: "&#127793;", title: `Plot #${p.id} (${p.name}) — Low Soil Moisture`, desc: `Soil moisture at ${p.soilMoisture}%. Irrigation recommended.`, time: "10 min ago" });
+
+        if (p.dailyUsage > 480)
+            alerts.push({ type: "info", icon: "&#128167;", title: `Plot #${p.id} (${p.name}) — High Water Usage`, desc: `Using ${p.dailyUsage}L/day. Check for leaks or over-irrigation.`, time: "15 min ago" });
+    });
+
+    const order = { critical: 0, warning: 1, info: 2 };
+    alerts.sort((a, b) => order[a.type] - order[b.type]);
+
+    list.innerHTML = alerts.length === 0
+        ? '<div class="no-alerts">All plots operating normally. No active alerts.</div>'
+        : alerts.map(a => `
+            <div class="alert-card a-${a.type}">
+                <div class="alert-icon-wrap">${a.icon}</div>
+                <div class="alert-body">
+                    <div class="a-title">${a.title}</div>
+                    <div class="a-desc">${a.desc}</div>
+                </div>
+                <div class="alert-time">${a.time}</div>
+            </div>`).join("");
+}
+
+/* ═══════════════
+   TOOLTIP
+   ═══════════════ */
+function showTooltip(e, plotId) {
+    const p = plots.find(x => x.id === plotId);
+    const tt = document.getElementById("tooltip");
+    document.getElementById("tt-title").textContent = `Plot #${p.id} — ${p.name}`;
+    document.getElementById("tt-tank").textContent = p.tankLevel + "%";
+    document.getElementById("tt-soil").textContent = p.soilMoisture + "%";
+    document.getElementById("tt-usage").textContent = p.dailyUsage + " L/day";
+    document.getElementById("tt-status").textContent = p.status.toUpperCase();
+    tt.classList.add("show");
+    tt.style.left = Math.min(e.clientX + 16, window.innerWidth - 260) + "px";
+    tt.style.top = Math.min(e.clientY - 10, window.innerHeight - 160) + "px";
+}
+function hideTooltip() {
+    document.getElementById("tooltip").classList.remove("show");
+}
+
+/* ═══════════════
+   TABS
+   ═══════════════ */
+document.querySelectorAll(".nav-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+        document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById("sec-" + tab.dataset.tab).classList.add("active");
+    });
+});
+
+/* ═══════════════
+   FILTER & SORT
+   ═══════════════ */
+function applyFilters() {
+    const query = document.getElementById("search").value.toLowerCase();
+    const statusVal = document.getElementById("statusFilter").value;
+    const sortVal = document.getElementById("sortBy").value;
+
+    let filtered = plots.filter(p => {
+        const matchQ = !query || p.name.toLowerCase().includes(query) || String(p.id).includes(query);
+        const matchS = statusVal === "all" || p.status === statusVal;
+        return matchQ && matchS;
+    });
+
+    if (sortVal === "tank-asc") filtered.sort((a, b) => a.tankLevel - b.tankLevel);
+    else if (sortVal === "tank-desc") filtered.sort((a, b) => b.tankLevel - a.tankLevel);
+    else if (sortVal === "soil-asc") filtered.sort((a, b) => a.soilMoisture - b.soilMoisture);
+    else if (sortVal === "water-desc") filtered.sort((a, b) => b.dailyUsage - a.dailyUsage);
+    else filtered.sort((a, b) => a.id - b.id);
+
+    renderPlotGrid(filtered);
+}
+
+document.getElementById("search").addEventListener("input", applyFilters);
+document.getElementById("statusFilter").addEventListener("change", applyFilters);
+document.getElementById("sortBy").addEventListener("change", applyFilters);
+
+/* ═══════════════
+   TABLE SORT
+   ═══════════════ */
+let sortDir = 1;
+function sortTable(colIndex) {
+    const tbody = document.getElementById("consumptionTable");
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+    rows.sort((a, b) => {
+        let va = a.cells[colIndex].textContent.replace(/[^0-9.-]/g, "");
+        let vb = b.cells[colIndex].textContent.replace(/[^0-9.-]/g, "");
+        if (!isNaN(va) && !isNaN(vb)) return (Number(va) - Number(vb)) * sortDir;
+        return a.cells[colIndex].textContent.localeCompare(b.cells[colIndex].textContent) * sortDir;
+    });
+    sortDir *= -1;
+    rows.forEach(r => tbody.appendChild(r));
+}
+
+/* ═══════════════
+   REFRESH
+   ═══════════════ */
+function refreshData() {
+    generateData();
+    renderAll();
+}
+
+function renderAll() {
+    renderHeader();
+    renderSummary();
+    applyFilters();
+    renderLayoutGrid();
+    renderBarChart();
+    renderConsumptionTable();
+    renderAlerts();
+}
+
+// Initial load
+generateData();
+renderAll();
+
+// Auto-refresh every 30 seconds
+setInterval(refreshData, 30000);
+</script>
+</body>
+</html>
